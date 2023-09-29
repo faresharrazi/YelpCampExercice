@@ -52,7 +52,7 @@ app.post('/campgrounds', catchAsync (async (req, res, next) => {
 // In order for the req.body to work you need
 // app.use(express.urlencoded({extended: true}));
 // Already done  
-    if (!req.body.campground) throw new ExpressErrors ('No valid data', 400);
+    if (!req.body.campground) throw new ExpressErrors ('No valid Entries', 400);
 
     const campground = new Campgound(req.body.campground);
     await campground.save();
