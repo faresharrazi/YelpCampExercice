@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
 <h1 class="display-6">New Campground</h1>
-<form action="/campgrounds" method="POST">
+<form class="needs-validation" action="/campgrounds" method="POST" novalidate>
   <div class="mb-3">
     <label for="title" class="form-label">Title</label>
     <input
@@ -9,7 +9,12 @@
       class="form-control"
       id="title"
       name="campground[title]"
+      required
     />
+    <div class="valid-feedback">Looks good!</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">
+      Please provide a valid title.
+    </div>
   </div>
 
   <div class="mb-3">
@@ -19,7 +24,12 @@
       class="form-control"
       id="location"
       name="campground[location]"
+      required
     />
+    <div class="valid-feedback">Looks good!</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">
+      Please provide a valid location.
+    </div>
   </div>
 
   <div class="mb-3">
@@ -29,7 +39,12 @@
       class="form-control"
       id="price"
       name="campground[price]"
+      required
     />
+    <div class="valid-feedback">Looks good!</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">
+      Please provide a price.
+    </div>
   </div>
 
   <div class="mb-3">
@@ -39,7 +54,12 @@
       class="form-control"
       id="image"
       name="campground[image]"
+      required
     />
+    <div class="valid-feedback">Looks good!</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">
+      You need to upload a picture.
+    </div>
   </div>
 
   <div class="mb-3">
@@ -48,7 +68,12 @@
       class="form-control"
       id="description"
       name="campground[description]"
+      required
     ></textarea>
+    <div class="valid-feedback">Looks good!</div>
+    <div id="validationServer03Feedback" class="invalid-feedback">
+      Tell us something about the campground.
+    </div>
   </div>
 
   <button type="submit" class="btn btn-primary">Submit</button>
