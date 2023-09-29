@@ -6,6 +6,7 @@ const Campgound = require ('./models/campground');
 const ejsMate = require ('ejs-mate');
 
 const catchAsync = require('./utilities/catchAsync');
+const ExpressErrors = require ('./utilities/expressErrors');
 
 mongoose.connect ('mongodb://127.0.0.1:27017/yelp-camp')
     // userNewUrlParser: true, 
@@ -51,6 +52,8 @@ app.post('/campgrounds', catchAsync (async (req, res, next) => {
 // In order for the req.body to work you need
 // app.use(express.urlencoded({extended: true}));
 // Already done  
+    if (!req.body.campground) throw new ExpressErrors ('No valid data', 400);
+
     const campground = new Campgound(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
@@ -86,8 +89,14 @@ app.delete('/campgrounds/:id', catchAsync (async (req, res) => {
     res.redirect('/campgrounds');
 }))
 
+app.all('*', (req, res, next) => {
+    next (new ExpressErrors ('Page Not Found !', 404))
+})
+
 app.use((err, req, res, next) => {
-    res.send("Damn! There is an error man!")
+    const {statusCode = 500, message = 'Something went wrong my friend'} = err;
+    res.status(statusCode).send(message);
+   
 })
 
 app.listen(3000, () => {
