@@ -1,15 +1,11 @@
-<div class="alert alert-danger" role="alert">
-  <h4 class="alert-heading">Error</h4>
-  <p>
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente quam quis
-    minima incidunt, id aut, inventore ratione, quasi saepe ea ipsa ab ullam
-    quas libero. Deserunt a est blanditiis obcaecati.
-  </p>
-  <hr />
-  <p class="mb-0">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deleniti dolor
-    eligendi, dolore magni quaerat, incidunt amet iusto quidem eos aliquid
-    culpa? Provident ullam hic molestiae eligendi iusto illo accusamus
-    quibusdam.
-  </p>
+<% layout('layouts/boilerplate') %>
+<div class="row">
+  <div class="col-10 offset-2">
+    <div class="alert alert-danger" role="alert">
+      <h4 class="alert-heading">Error</h4>
+      <p>Code: <%= err.statusCode %></p>
+      <hr />
+      <p class="mb-0"><%= err.message %></p>
+    </div>
+  </div>
 </div>

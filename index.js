@@ -2,16 +2,26 @@ const express = require ('express');
 const path = require('path');
 const mongoose = require ('mongoose');
 const methodOverride = require ('method-override');
-const Campgound = require ('./models/campground');
-const ejsMate = require ('ejs-mate');
 
-const catchAsync = require('./utilities/catchAsync');
+const session = require ('express-session');
+const flash = require('connect-flash');
+
+const { campgroundSchema, reviewSchema} = require ('./schemas');
+const Campgound = require ('./models/campground');
+const Review = require ('./models/review');
+const ejsMate = require ('ejs-mate');
+const Joi = require ('joi');
+
 const ExpressErrors = require ('./utilities/expressErrors');
+
+const campgrounds = require ('./routes/campground');
+const reviews = require ('./routes//reviews');
 
 mongoose.connect ('mongodb://127.0.0.1:27017/yelp-camp')
     // userNewUrlParser: true, 
     // UseCreateIndex: true,
     // UseUnifiedTopology: true
+    //useFindAndModify: false
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
@@ -26,68 +36,53 @@ app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Session configuration
+
+const sessionsConfig = {
+    secret: 'thisshouldbeabttersecret!',
+    resave: false,
+    saveUninitialized: true, 
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}
+
+app.use(session(sessionsConfig));
+
+// flash
+
+app.use(flash());
+
+// Setting up the flash middleware before any other route
+
+app.use ((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
+
 // So you can extract req.body inside the app.post
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 
+// Setting up the routes
+
+app.use('/campgrounds', campgrounds);
+app.use('/campgrounds/:id/reviews', reviews);
+
+// Serving Static Assets
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// --------------------------- //
+
+
+
 app.get('/', (req, res) => {
     res.render('home');
 })
-
-app.get('/campgrounds', async (req, res) => {
-    const campground = await Campgound.find({});
-    res.render('campgrounds/index', {campground})
-})
-
-
-
-// Form for New Campground 
-
-app.get('/campgrounds/new', (req, res) => {
-    res.render('campgrounds/new')
-})
-
-app.post('/campgrounds', catchAsync (async (req, res, next) => {
-
-// In order for the req.body to work you need
-// app.use(express.urlencoded({extended: true}));
-// Already done  
-    if (!req.body.campground) throw new ExpressErrors ('No valid Entries', 400);
-
-    const campground = new Campgound(req.body.campground);
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`)
-   
-}))
-
-// Form to edit campgrounds
-app.get('/campgrounds/:id/edit', catchAsync (async (req, res) => {
-    const {id} = req.params;
-    const campground = await Campgound.findById(id);
-    res.render('campgrounds/edit', {campground})
-}))
-
-app.put('/campgrounds/:id', catchAsync(async (req, res) => {
-    const {id} = req.params;
-    const campground = await Campgound.findByIdAndUpdate(id, {...req.body.campground});
-    res.redirect(`/campgrounds/${campground._id}`);
-}))
-
-
-//Show Campground by ID
-
-app.get('/campgrounds/:id', catchAsync (async (req, res) => {
-    const {id} = req.params;
-    const campground = await Campgound.findById(id);
-    res.render('campgrounds/show', {campground})
-}))
-
-// Deleting Campground
-app.delete('/campgrounds/:id', catchAsync (async (req, res) => {
-    const {id} = req.params;
-    const campground = await Campgound.findByIdAndDelete(id);
-    res.redirect('/campgrounds');
-}))
 
 app.all('*', (req, res, next) => {
     next (new ExpressErrors ('Page Not Found !', 404))
@@ -95,7 +90,7 @@ app.all('*', (req, res, next) => {
 
 app.use((err, req, res, next) => {
     const {statusCode = 500, message = 'Something went wrong my friend'} = err;
-    res.status(statusCode).send(message);
+    res.status(statusCode).render('partials/error', {err})
    
 })
 
