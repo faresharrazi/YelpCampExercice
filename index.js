@@ -17,6 +17,9 @@ const ExpressErrors = require ('./utilities/expressErrors');
 const campgrounds = require ('./routes/campground');
 const reviews = require ('./routes//reviews');
 
+const passport = require('passport');
+const localStrategy = require('passport-local');
+
 mongoose.connect ('mongodb://127.0.0.1:27017/yelp-camp')
     // userNewUrlParser: true, 
     // UseCreateIndex: true,
@@ -75,6 +78,11 @@ app.use('/campgrounds/:id/reviews', reviews);
 // Serving Static Assets
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Setting up Passport
+
+app.use(passport.initialize());
+app.use(passport.session()); //We use this middleware for persistent login sessions, we should make sure that this is used after the app.use(session(sessionsConfig));
 
 // --------------------------- //
 
