@@ -6,16 +6,19 @@ const methodOverride = require ('method-override');
 const session = require ('express-session');
 const flash = require('connect-flash');
 
-const { campgroundSchema, reviewSchema} = require ('./schemas');
 const Campgound = require ('./models/campground');
 const Review = require ('./models/review');
+const User = require('./models/user');
+
+const { campgroundSchema, reviewSchema} = require ('./schemas');
 const ejsMate = require ('ejs-mate');
 const Joi = require ('joi');
 
 const ExpressErrors = require ('./utilities/expressErrors');
 
-const campgrounds = require ('./routes/campground');
-const reviews = require ('./routes//reviews');
+const campgroundRoutes = require ('./routes/campground');
+const reviewRoutes = require ('./routes//reviews');
+const userRoutes = require ('./routes/users');
 
 const passport = require('passport');
 const localStrategy = require('passport-local');
@@ -39,6 +42,8 @@ app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+
+
 // Session configuration
 
 const sessionsConfig = {
@@ -58,22 +63,21 @@ app.use(session(sessionsConfig));
 
 app.use(flash());
 
-// Setting up the flash middleware before any other route
+// Setting up local variables middleware before any other route
 
 app.use ((req, res, next) => {
+    res.locals.currentUser  = req.session.passport;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
+    
 })
+
+
 
 // So you can extract req.body inside the app.post
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
-
-// Setting up the routes
-
-app.use('/campgrounds', campgrounds);
-app.use('/campgrounds/:id/reviews', reviews);
 
 // Serving Static Assets
 
@@ -83,6 +87,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(passport.initialize());
 app.use(passport.session()); //We use this middleware for persistent login sessions, we should make sure that this is used after the app.use(session(sessionsConfig));
+passport.use(new localStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Setting up the routes
+
+app.use('/campgrounds', campgroundRoutes);
+app.use('/campgrounds/:id/reviews', reviewRoutes);
+app.use('/', userRoutes);
+
+
 
 // --------------------------- //
 
