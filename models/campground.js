@@ -5,9 +5,25 @@ const Review = require('./review');
 const CampgroundSchema = new Schema ({
     title: String, 
     price: Number,
-    description: String,
     location: String,
-    image: String,
+    city: String,
+    state: String,
+    description: String,
+    geometry: {
+        type: {
+          type: String,
+          enum: ['Point'], 
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true
+        }
+      },
+    images: [{
+        url: String,
+        filename: String
+    }],
     author:{
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -28,4 +44,4 @@ CampgroundSchema.post('findOneAndDelete', async function (doc) {
     }
 })
 
-module.exports = mongoose.model ('Campgound', CampgroundSchema);
+module.exports = mongoose.model ('Campground', CampgroundSchema);

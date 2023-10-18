@@ -5,6 +5,7 @@
   class="needs-validation"
   action="/campgrounds/<%= campground._id %>?_method=PUT"
   method="POST"
+  enctype="multipart/form-data"
   novalidate
 >
   <div class="mb-3">
@@ -56,13 +57,13 @@
   </div>
 
   <div class="mb-3">
-    <label for="image" class="form-label">Image URL</label>
+    <label for="image" class="form-label">Add Pictures</label>
     <input
-      type="text"
+      type="file"
       class="form-control"
       id="image"
-      name="campground[image]"
-      value="<%=campground.image%>"
+      name="images"
+      multiple
       required
     />
     <div class="valid-feedback">Looks good!</div>
